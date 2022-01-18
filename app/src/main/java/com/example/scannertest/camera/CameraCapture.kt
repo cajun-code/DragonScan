@@ -94,19 +94,7 @@ fun CameraCapture(
                             }
                             imageCaptureUseCase.takePicture(
                                 context.executor,
-                                ImageCapture.OnImageCapturedCallback {
-                                    fun onCaptureSuccess(image: ImageProxy) {
-                                        BarcodeProcess(
-                                            image.getPlanes()[0].getBuffer(),
-                                            image.getWidth(),
-                                            image.getHeight()
-                                        )
-                                    }
-
-                                    fun onError(ex: ImageCaptureException) {
-                                        Log.e("TakePicture", "Image capture failed", ex)
-                                    }
-                                })
+                                ImageHandler())
                         })
                     }
                 ) {
@@ -129,4 +117,18 @@ fun CameraCapture(
     }
 }
 
+
+class ImageHandler : ImageCapture.OnImageCapturedCallback() {
+    override fun onCaptureSuccess(image: ImageProxy) {
+        BarcodeProcess(
+            image.getPlanes()[0].getBuffer(),
+            image.getWidth(),
+            image.getHeight()
+        )
+    }
+
+    override fun onError(ex: ImageCaptureException) {
+        Log.e("TakePicture", "Image capture failed", ex)
+    }
+}
 

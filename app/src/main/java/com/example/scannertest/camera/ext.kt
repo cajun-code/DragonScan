@@ -142,9 +142,11 @@ fun BarcodeProcess(image: ByteBuffer, width: Int, height: Int){
                 MWB_CODE_MASK_PDF or
                 MWB_CODE_MASK_QR
     )
+    val imageBytes = ByteArray(image.capacity())
+    image.get(imageBytes)
     var rawResult: ByteArray? = null
-    rawResult = BarcodeScanner.MWBscanGrayscaleImage(image.array(), width, height)
-    if (rawResult.size > 0) {
+    rawResult = BarcodeScanner.MWBscanGrayscaleImage(imageBytes, width, height)
+    if (rawResult != null && rawResult.size > 4 || rawResult != null && rawResult.size > 0 && BarcodeScanner.MWBgetLastType() != BarcodeScanner.FOUND_39 && BarcodeScanner.MWBgetLastType() != BarcodeScanner.FOUND_25_INTERLEAVED && BarcodeScanner.MWBgetLastType() != BarcodeScanner.FOUND_25_STANDARD) {
         // Process result
     }
 }
