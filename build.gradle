@@ -1,7 +1,9 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
     ext {
+        accompanist_version = "0.18.0"
         compose_version = '1.0.1'
+        camerax_version = '1.0.1'
     }
     repositories {
         google()

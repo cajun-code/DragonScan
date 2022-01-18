@@ -1,63 +1,77 @@
 package com.example.scannertest
 
-import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
+import coil.annotation.ExperimentalCoilApi
+import coil.compose.rememberImagePainter
 import com.example.scannertest.ui.theme.ScannerTestTheme
+import com.example.scannertest.camera.CameraCapture
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
+@ExperimentalCoilApi
+@ExperimentalCoroutinesApi
+@ExperimentalPermissionsApi
 class MainActivity : ComponentActivity() {
-    @OptIn(ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             ScannerTestTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(color = MaterialTheme.colors.background) {
-                    MainContent()
+                    MainContent(Modifier.fillMaxSize())
                 }
             }
         }
     }
 }
 
+@ExperimentalCoilApi
+@ExperimentalCoroutinesApi
 @ExperimentalPermissionsApi
 @Composable
-fun MainContent(modifier: Modifier = Modifier){
-    val context = LocalContext.current
-    Permission(
-        permision = android.Manifest.permission.CAMERA,
-        rationale = "You want to scan barcodes so I need access to the camera",
-        permissionNotAvailableContent = {
-            Column(modifier) {
-                Text(text = "No Camera")
-                Spacer(modifier = Modifier.height(8.dp))
-                Button(onClick = {
-                    context.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply { 
-                        data= Uri.fromParts("package", context.packageName, null)
-                    })
-                }) {
-                    Text(text = "Open Settings")
+fun MainContent(modifier: Modifier = Modifier) {
+    val emptyImageUri = Uri.parse("file://dev/null")
+    var imageUri by remember { mutableStateOf(emptyImageUri) }
+    if (imageUri != emptyImageUri) {
+        Box(modifier = modifier) {
+            Image(
+                modifier = Modifier.fillMaxSize(),
+                painter = rememberImagePainter(imageUri),
+                contentDescription = "Captured image"
+            )
+            Button(
+                modifier = Modifier.align(Alignment.BottomCenter),
+                onClick = {
+                    imageUri = emptyImageUri
                 }
+            ) {
+                Text("Remove image")
             }
         }
-    ){
-        Text(text = "It Worked")
+    } else {
+        CameraCapture(
+            modifier = modifier,
+            onImageFile = { file ->
+                imageUri = file.toUri()
+            }
+        )
     }
 }
-

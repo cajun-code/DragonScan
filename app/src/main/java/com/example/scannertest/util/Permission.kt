@@ -1,4 +1,4 @@
-package com.example.scannertest
+package com.example.scannertest.util
 
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
@@ -11,12 +11,12 @@ import com.google.accompanist.permissions.rememberPermissionState
 @ExperimentalPermissionsApi
 @Composable
 fun Permission (
-    permision: String = android.Manifest.permission.CAMERA,
+    permission: String = android.Manifest.permission.CAMERA,
     rationale: String = "This permission is important for this app.  Please grant the permission.",
     permissionNotAvailableContent: @Composable () -> Unit = {},
     content: @Composable () -> Unit = {}
 ){
-    val permissionState = rememberPermissionState(permision)
+    val permissionState = rememberPermissionState(permission)
     PermissionRequired(
         permissionState = permissionState,
         permissionNotGrantedContent = {
