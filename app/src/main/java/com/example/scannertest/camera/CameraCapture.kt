@@ -33,6 +33,9 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import java.io.File
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
+import java.util.*
+import kotlin.concurrent.schedule
+import kotlin.concurrent.scheduleAtFixedRate
 
 @ExperimentalPermissionsApi
 @ExperimentalCoroutinesApi
@@ -43,6 +46,8 @@ fun CameraCapture(
     onImageFile: (File) -> Unit = { }
 ) {
     val context = LocalContext.current
+    val timer: Timer = Timer()
+
     Permission(
         permission = Manifest.permission.CAMERA,
         rationale = "You said you wanted a picture, so I'm going to have to ask for permission.",
@@ -65,6 +70,7 @@ fun CameraCapture(
         }
     ) {
         Box(modifier = modifier) {
+
             val lifecycleOwner = LocalLifecycleOwner.current
             val coroutineScope = rememberCoroutineScope()
             var previewUseCase by remember { mutableStateOf<UseCase>(Preview.Builder().build()) }
@@ -74,6 +80,11 @@ fun CameraCapture(
                         .setCaptureMode(CAPTURE_MODE_MAXIMIZE_QUALITY)
                         .build()
                 )
+            }
+            Timer("capture", false).scheduleAtFixedRate(delay= 500, period = 500) {
+                imageCaptureUseCase.takePicture(
+                    context.executor,
+                    ImageHandler())
             }
             Box {
                 CameraPreview(
@@ -92,9 +103,6 @@ fun CameraCapture(
                             imageCaptureUseCase.takePicture(context.executor).let {
                                 onImageFile(it)
                             }
-                            imageCaptureUseCase.takePicture(
-                                context.executor,
-                                ImageHandler())
                         })
                     }
                 ) {
@@ -125,6 +133,7 @@ class ImageHandler : ImageCapture.OnImageCapturedCallback() {
             image.getWidth(),
             image.getHeight()
         )
+        image.close()
     }
 
     override fun onError(ex: ImageCaptureException) {

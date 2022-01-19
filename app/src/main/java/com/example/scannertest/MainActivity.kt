@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.core.net.toUri
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
+import com.example.scannertest.camera.BarcodeInit
 import com.example.scannertest.ui.theme.ScannerTestTheme
 import com.example.scannertest.camera.CameraCapture
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -32,6 +33,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        BarcodeInit(this)
         setContent {
             ScannerTestTheme {
                 // A surface container using the 'background' color from the theme

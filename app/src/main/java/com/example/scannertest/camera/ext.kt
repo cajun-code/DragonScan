@@ -1,11 +1,14 @@
 package com.example.scannertest.camera
 
+import android.app.Activity
 import android.content.Context
 import android.util.Log
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
+import com.google.zxing.PlanarYUVLuminanceSource
 import java.io.File
 import java.util.concurrent.Executor
 import kotlin.coroutines.resume
@@ -72,11 +75,8 @@ suspend fun ImageCapture.takePicture(executor: Executor): File {
 //                     BarcodeProcess(image.getPlanes()[0].getBuffer(), image.getWidth(), image.getHeight())
 //                }
 
-
-
-
-fun BarcodeProcess(image: ByteBuffer, width: Int, height: Int){
-
+fun BarcodeInit(activity: Activity){
+    BarcodeScanner.MWBinit(activity)
     // register your copy of the mobiScan SDK with the given user name / key
     /*
         SG.Android.PDF.4DL	67145DFE6112EF527ECB15A8E8DBFCB957B3E1E4C8BC78E50D653DA991D35969
@@ -142,11 +142,24 @@ fun BarcodeProcess(image: ByteBuffer, width: Int, height: Int){
                 MWB_CODE_MASK_PDF or
                 MWB_CODE_MASK_QR
     )
+}
+
+
+fun BarcodeProcess(image: ByteBuffer, width: Int, height: Int){
+
+
+    // TODO: Verify that this sets all the rectangles to be the same through QA
+    BarcodeScanner.MWBsetScanningRect(BarcodeScanner.MWB_CODE_MASK_ALL, 0.0F, 0.0F,
+        width.toFloat(), height.toFloat())
+
     val imageBytes = ByteArray(image.capacity())
     image.get(imageBytes)
+    val grayscaleImage = PlanarYUVLuminanceSource(imageBytes, width, height, 0, 0, width, height, false)
+    println("Scanning........")
     var rawResult: ByteArray? = null
-    rawResult = BarcodeScanner.MWBscanGrayscaleImage(imageBytes, width, height)
-    if (rawResult != null && rawResult.size > 4 || rawResult != null && rawResult.size > 0 && BarcodeScanner.MWBgetLastType() != BarcodeScanner.FOUND_39 && BarcodeScanner.MWBgetLastType() != BarcodeScanner.FOUND_25_INTERLEAVED && BarcodeScanner.MWBgetLastType() != BarcodeScanner.FOUND_25_STANDARD) {
-        // Process result
+    rawResult = BarcodeScanner.MWBscanGrayscaleImage(grayscaleImage.matrix, width, height)
+    if (rawResult != null){ //&& rawResult.size > 4 || rawResult != null && rawResult.size > 0 && BarcodeScanner.MWBgetLastType() != BarcodeScanner.FOUND_39 && BarcodeScanner.MWBgetLastType() != BarcodeScanner.FOUND_25_INTERLEAVED && BarcodeScanner.MWBgetLastType() != BarcodeScanner.FOUND_25_STANDARD) {
+        println("Found Something")
     }
+
 }
